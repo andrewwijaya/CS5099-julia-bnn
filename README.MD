@@ -1,16 +1,5 @@
-# CS5099 Probabilistic Deep Learning in Julia
+# CS5099 A Probabilistic Deep Learning Implementation In Julia
 
-## Todo
-- 5 cases of TFP
-  - No uncertainty
-  - Aleatoric
-  - Epistemic
-  - Aleatoric & Epistemic
-  - Functional
-- Batch mode
-- Other probability distributions
+This project aims to explore Bayesian approaches to deep learning by implementing Variational Inference, and also a simple HMC based sampler. The VI implementation is largely based on the Autograd Bayesian Neural Networks example which is implemented in Python. The HMC implementation is based on the example from AdvancedHMC which uses the No-U-Turn Samples (NUTS). This project compares and evaluates sampling and VI based approaches.
 
-## To Read
-- https://www.cs.toronto.edu/~duvenaud/papers/blackbox.pdf replicate the 5 lines of code
-- https://www.coursera.org/lecture/probabilistic-deep-learning-with-tensorflow2/coding-tutorial-the-densevariational-layer-vDk3w
-- https://github.com/HIPS/autograd/blob/master/examples/bayesian_neural_net.py
+This codebase contains a number of notebooks for the experiments, and some Julia modules which contain the VI implementation. Details of each artefact are described in the final report's 'Artefact' section.
