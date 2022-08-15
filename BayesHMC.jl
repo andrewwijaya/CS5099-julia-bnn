@@ -1,3 +1,6 @@
+#=
+Implementation of AdvancedHMC.jl example for the neural network code. The neural network code here is a slightly modified version compared to what is in BayesVI.jl - this is in order to make it work with HMC sampling.
+=#
 module BayesHMC
     using AdvancedHMC, Distributions, ForwardDiff, Zygote
     using Random
@@ -20,7 +23,7 @@ module BayesHMC
     Input:
         layer_sizes = vector of integers specifying number of nodes in each layer. Example: [1, 20, 20, 1]
         L2_reg = a single float value specifying the L2 regularisation.
-        noise_variance = TODO
+        noise_variance = float value, used for shrinkage effect on likelihood term.
         nonlinearity = function used as non-linearity between layers.
     Output:
         num_weights = total number of weights in the produced neural network.
@@ -44,20 +47,13 @@ module BayesHMC
         end
 
         # Outputs the predictions for each number of models sampled from posterior.
-        # inputs dimension: observations x features
+        # inputs dimension: observations x features.
         # weights dimensions: 
         function predictions(weights, inputs)
             #inputs = reshape(inputs, 1, size(inputs)...)
             params = unpack_layers(weights)
             Ws = params[1]
             bs = params[2]
-            
-            # inputs_stacked = vcat()
-            # for i in range(1, size(weights)[1])
-            #     inputs_stacked = vcat(inputs_stacked, inputs)
-            # end
-            # inputs = inputs_stacked
-
             #Go through all samples for each layer. (W,b) is the collection of all samples of weights and biases for a particular layer.
             for j in range(1, length(Ws))
                 W = Ws[j]
@@ -83,61 +79,32 @@ module BayesHMC
         return num_weights, predictions, logprob
     end
     
-    # Create samples of weights based on variational parameters.
-    function sample_posteriors(variational_parameters)
-        means, log_stds = unpack_params(variational_parameters)
-        return randn(1, num_weights) .* exp.(log_stds)' .+ means'
-    end
-    
-    # Initialise variational parameters randomly.
-    function initialise_variational_parameters(num_weights)
-        init_mean = randn(num_weights)
-        init_log_std = -5 * ones(num_weights)
-        return vcat(init_mean, init_log_std)
-    end
-    
-    # Sample posteriors and plot predictions.
-    function sample_and_plot(init_var_params, number_of_models, title_name="", ylims=(-3, 3), xlims=(-8, 8), xmin=-8, xmax=8, xrange=150)
-        plot_inputs = collect(LinRange(xmin, xmax, xrange))
-        plot_inputs = reshape(plot_inputs, (length(plot_inputs), 1))
-        scatter(inputs, targets, label="")
-        for i in range(1, number_of_models)
-            sample_weights = sample_posteriors(init_var_params)
-            outs = predictions(sample_weights, plot_inputs)
-            plot!(plot_inputs, outs[1, :, 1], ylim=ylims, xlim=xlims, size=(700,400), label="", title=title_name)
-        end
-    end
-    
+    #=
+    RBF activation function.
+    =#
     function rbf(x)
         exp.(-x.^2)
     end
     
+    #=
+    Linear activation function.
+    =#
     function linear(x)
         x
     end
     
-    function train_bayesian_neural_network(epochs, learning_rate, num_weights, objective)
-        init_var_params = initialise_variational_parameters(num_weights)
-        param_hist = Array{}[]
-        opt = ADAM(learning_rate)
-        elbos = zeros(epochs)
-        for i in range(1,epochs)
-            Flux.Optimise.update!(opt, init_var_params, gradient(objective, (init_var_params))[1])
-            push!(param_hist, copy(init_var_params))
-            elbos[i] = -objective(init_var_params)
-        end
-        return param_hist, elbos
-    end
-    
-    function animate_variational_params(param_hist, number_of_models, ylims=(-3, 3), xlims=(-8, 8), xmin=-8, xmax=8, xrange=150)
-        epochs = length(param_hist)
-        anim = @animate for i in range(1, epochs)
-            title="Iteration: "*string(i)*"/$epochs - Bayesian Neural Network"
-            sample_and_plot(param_hist[i], number_of_models, title, ylims, xlims, xmin, xmax, xrange)
-        end
-        gif(anim, fps=20)
-    end
-    
+    #=
+    Executes HMC sampler on the bayesian network. This is mostly from the example in the AdvancedHMC.jl page, 
+    adapted to work with the neural network's posterior instead.
+    Inputs:
+        n_samples: number of samples
+        n_adapts: number of adapts
+        num_weights: number of weights in the neural network
+        log_posterior: log posterior of the neural network
+    Outputs:
+        samples: samples from the posterior
+        stats: statistics from AdvancedHMC.jl sampling process
+    =#
     function run_hmc_sampler(n_samples, n_adapts, num_weights, log_posterior)
         # Choose parameter dimensionality and initial parameter value
         D = num_weights
@@ -160,14 +127,8 @@ module BayesHMC
     end
 
     export unpack_params
-    export black_box_variational_inference
     export make_neural_network_functions
-    export sample_posteriors
-    export initialise_variational_parameters
-    export sample_and_plot
     export rbf
     export linear
-    export train_bayesian_neural_network
-    export animate_variational_params
     export run_hmc_sampler
 end

@@ -16,10 +16,8 @@ module BayesVI
     #= Function to specify, and produce the Bayesian Neural Network.
     Input:
         layer_sizes = vector of integers specifying number of nodes in each layer. Example: [1, 20, 20, 1]
-        L2_reg = a single float value specifying the L2 regularisation.
-        noise_variance = TODO
+        L2_reg = a single float value specifying the L2 regularisation constant.
         nonlinearity = function used as non-linearity between layers.
-        [TODO] add variable for final nonlinearity to add flexibility for final layer.
     Output:
         num_weights = total number of weights in the produced neural network.
         predictions = forward pass function. 
@@ -102,14 +100,31 @@ module BayesVI
         return vcat(init_mean, init_log_std)
     end
     
+    #=
+    RBF activation function.
+    =#
     function rbf(x)
         exp.(-x.^2)
     end
     
+    #=
+    Linear activation function.
+    =#
     function linear(x)
         x
     end
     
+    #=
+    Trains the bayesian neural network.
+    Inputs:
+        epochs: number of epochs of training.
+        learning_rate: the learning rate for the ADAM optimiser.
+        num_weights: number of weights in the model.
+        objective: variational objective function, a result from the blackbox VI library.
+    Output:
+        param_hist: history of variational parameters throughout training.
+        elbos: list of elbos throughout training.
+    =#
     function train_bayesian_neural_network(epochs, learning_rate, num_weights, objective)
         init_var_params = initialise_variational_parameters(num_weights)
         param_hist = Array{}[]
@@ -135,13 +150,22 @@ module BayesVI
         end
     end
 
+    #=
+    Convenience method used to visualise drawn samples as GIFs. This method returns a gif which shows the observation data, and predictions
+    based on the drawn models. This is only used for Variational Inference results.
+    Inputs:
+        param_hist: history of variational parameters.
+        number_of_models: number of samples (whole neural networks) to be sampled from the variational posterior.
+        the rest of the parameters are properties of the plot.
+    Output:
+        a gif animation showing changing in predictions for each model sampled from the posterior.
+    =#
     function animate_variational_params(inputs, targets, param_hist, number_of_models, prediction_fn, ylims=(-3, 3), xlims=(-8, 8), xmin=-8, xmax=8, xrange=150)
         epochs = length(param_hist)
         anim = @animate for i in range(1, epochs)
             title="Iteration: "*string(i)*"/$epochs - Bayesian Neural Network"
             sample_and_plot(inputs, targets, param_hist[i], number_of_models, prediction_fn, title, ylims, xlims, xmin, xmax, xrange)
         end
-#         return anim
         gif(anim, fps=20)
     end
 

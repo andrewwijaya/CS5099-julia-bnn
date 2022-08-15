@@ -1,3 +1,6 @@
+#=
+Implementation of blackboxSVI based on work by Duvenaud, and Ranganath. This implementation is a port from the Python implementation shown in the Autograd example.
+=#
 module BlackboxSVI
     using Distributions
     #=
@@ -16,7 +19,6 @@ module BlackboxSVI
         Input: vector of log standard deviations.
         Output: vector of Gaussian entropies.
         =#
-        #TODO: is there something wrong with this calculation for D>1?
         function gaussian_entropy(log_std)
            return 0.5 * D * (1.0 + log(2*π)) + sum(log_std)
         end
@@ -34,7 +36,7 @@ module BlackboxSVI
             return -lower_bound
         end
         
-        return variational_objective, unpack_params
+        return variational_objective
     end
 
     #= 
