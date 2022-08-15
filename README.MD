@@ -5,7 +5,7 @@ This project aims to explore Bayesian approaches to deep learning by implementin
 This codebase contains a number of notebooks for the experiments, and some Julia modules which contain the VI implementation. Details of each artefact are described in the final report's 'Artefact' section.
 
 ## Requirements
-To run the Julia implementations in this codebase you need Julia version 1.7, and either Pluto or Jupyter notebook. There are several other packages that will require installing using the Pkg package. This is all detailed in the final report.
+To run the Julia implementations in this codebase you need Julia version 1.7, and Jupyter notebook. There are several other packages that will require installing using the Pkg package. This is all detailed in the final report.
 
 ## Variational Inference
 
