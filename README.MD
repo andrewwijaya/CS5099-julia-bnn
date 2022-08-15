@@ -14,3 +14,34 @@ To see the results of experiments for BNN using VI check the vi_experiments note
 ## Hamiltonian Monte Carlo
 
 The results of experiments using HMC are in the hmc_experiments.
+
+## Execution Steps
+
+1. Download Julia from the official site: https://julialang.org/downloads/
+2. Install Julia
+3. Download anaconda distribution from: https://www.anaconda.com/products/distribution
+4. For Linux, run
+```
+jupyter notebook
+```
+5. For Windows, open an anaconda prompt then run
+```
+jupyter notebook
+```
+6. Open Julia prompt and execute: (you should be able to just copy the whole list into prompt and execute)
+```
+using Pkg
+Pkg.add("IJulia")
+Pkg.add("Plots")
+Pkg.add("Distributions")
+Pkg.add("Flux")
+Pkg.add("OrderedCollections")
+Pkg.add("OMEinsum")
+Pkg.add("BenchmarkTools")
+Pkg.add(Pkg.PackageSpec(;name="AdvancedHMC", version="0.3.5"))
+Pkg.add("ForwardDiff")
+Pkg.add("Zygote")
+```
+7. Unzip the submitted codebase
+8. On Jupyter Notebook in your browser, navigate to where the code was extracted from step 7
+9. Execute all five notebooks
